@@ -60,14 +60,15 @@ class PlayerMenuView:
 
     @staticmethod
     def quit():
-        leave = input("Appuyer sur c pour ajouter un nouveau joueur ou q pour revenir au menu: ")
+        leave = input("Appuyer sur c pour ajouter un nouveau joueur ou entrée pour revenir au menu: ")
         return leave
 
 
 class TournamentMenuView:
 
-    def __init__(self, players):
+    def __init__(self, players, time):
         self.players = players
+        self.time = time
 
     def display_player(self):
         print("liste des joueurs")
@@ -84,4 +85,35 @@ class TournamentMenuView:
     def error_id():
         print()
         print("saississez un nombre correct")
+
+    @staticmethod
+    def get_name():
+        name = input("nom: ")
+        return name
+
+    @staticmethod
+    def get_place():
+        place = input("lieu: ")
+        return place
+
+    @staticmethod
+    def get_date():
+        date = input("date: ")
+
+        return date
+    @staticmethod
+    def check_date():
+        put = input("appuyer sur o pour ajouter une nouvelle date sinon n")
+        return put
+
+    def get_time(self):
+        for i in self.time:
+            print(i)
+        time = input("contrôle du temps: ")
+        return time
+
+    @staticmethod
+    def get_desc():
+        desc = input("description: ")
+        return desc
 

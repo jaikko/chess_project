@@ -16,15 +16,27 @@ def serialize_player(new):
 
 # ajouter player à la base de données
 def add_db(serialized_players):
-    db = TinyDB("db.json")
+    db = TinyDB("player.json")
     players_table = db.table("players")
-    # players_table.truncate()  # clear the table first
     players_table.insert(serialized_players)
+
+#update tournament_players
+def update_playerslist(liste, id):
+    db = TinyDB("tournament.json")
+    players_table = db.table("tournament")
+    user = Query()
+    result = players_table.search(user.id == id)
+    result['players'] = liste
+# ajouter tournaments à la base de données
+def add_tournament_db(serialized_tr):
+    db = TinyDB("tournament.json")
+    players_table = db.table("tournament")
+    players_table.insert(serialized_tr)
 
 
 # récupérer le dernier idplayer et le retourner le nouvelle id
 def get_id_player():
-    db = TinyDB("db.json")
+    db = TinyDB("player.json")
     players_table = db.table("players")
     num = len(players_table)
     if num >= 1:
@@ -36,51 +48,43 @@ def get_id_player():
 
 # récupérer le dernier idtournament et le retourner le nouvelle id
 def get_id_tournament():
-    db = TinyDB("db.json")
-    table = db.table("playerbytournement")
+    db = TinyDB("tournament.json")
+    table = db.table("tournament")
     num = len(table)
     if num == 0:
-        num = 0
+        num = 1
     else:
-        num = int(num/2)
+        num += 1
     return num
 
-
-# ajouter joueur à la table playerbytournament
-def player_by_tournament(idtournament, idplayer):
-    serial = {
-        'idtournament': idtournament,
-        'idplayer': idplayer
+#dbb tournoi
+def tournament_db(tournament):
+    serialized_tr = {
+        'id': tournament.id,
+        'players': tournament.players,
+        'name': tournament.name,
+        'place': tournament.place,
+        'time': tournament.time,
+        'laps': tournament.laps,
+        'desc': tournament.desc
     }
-    db = TinyDB("db.json")
-    table = db.table("playerbytournement")
-    table.insert(serial)
+    return serialized_tr
+
 
 
 # récuper information à partir de l'id
 def get_player_by_id(id):
-    db = TinyDB("db.json")
+    db = TinyDB("player.json")
     table = db.table("players")
     user = Query()
-    result = table.search(user.id == id)
+    result = table.search(user.id == int(id))
     return result
-
-
-# vérifier joueur inscrit à un tournoi
-def check_idplayer_tournament(idtournament, idplayer):
-    idtournament = int(idtournament)
-    idplayer = int(idplayer)
-    db = TinyDB("db.json")
-    table = db.table("playerbytournement")
-    user = Query()
-    result = table.search((user.idtournament == idtournament) & (user.idplayer == idplayer))
-    return len(result)
 
 
 # récupérer tous les joueurs
 def get_all_player():
     players = []
-    db = TinyDB('db.json')
+    db = TinyDB('player.json')
     table = db.table('players')
     for row in table:
         players.append(row)
