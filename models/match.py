@@ -6,8 +6,7 @@ class MatchEntry1:
     def items(self):
         return f"Joueur 1: {self.player.first_name} {self.player.last_name}({self.player.id})   "
 
-    def __str__(self):
-        return f"Joueur 1: {self.player.first_name} {self.player.last_name}({self.player.id}) {self.score}  "
+
 
 
 class MatchEntry2:
@@ -18,8 +17,7 @@ class MatchEntry2:
     def items(self):
         return f"Joueur 2: {self.player.first_name} {self.player.last_name}({self.player.id}) vs  "
 
-    def __str__(self):
-        return f"Joueur 2: {self.player.first_name} {self.player.last_name} ({self.player.id}) {self.score}"
+
 
 
 class Match:
@@ -29,7 +27,7 @@ class Match:
         self.matchs = all_match
 
     def add_match(self, player1, score1, player2, score2):
-        self.match = [MatchEntry1(player1, score1)], [MatchEntry2(player2, score2)]
+        self.match = MatchEntry1(player1, score1), MatchEntry2(player2, score2)
 
     def matchs(self, match):
         self.matchs = [match]
@@ -40,3 +38,6 @@ class Match:
     def return_match(self):
         return f"Joueur 1: {self.match[0].player.first_name} "
 
+    @staticmethod
+    def check_match(liste, new_liste):
+        pass

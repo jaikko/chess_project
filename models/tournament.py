@@ -3,7 +3,7 @@
 class Tournament:
     time = ["bullet", "blitz", "coup rapide"]
 
-    def __init__(self, id, name, place,desc, time, laps=4, date=[], rounds=[], player=""):
+    def __init__(self, id, name, place,desc, time, laps=4, date=[], rounds=[], player=[]):
         self.name = name
         self.place = place
         self.date = date

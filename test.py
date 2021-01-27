@@ -3,7 +3,15 @@ from collections import OrderedDict
 
 pl = player.Player
 
-dicts = {4: 1, 3: 1, 2: 0, 1: 0}
+dicts = {3: 1, 4: 0, 7: 0.5, 2: 0.5, 6: 0, 8: 1, 5: 0.5, 1: 0.5}
+
+
+def ranking_by_score(liste):
+    liste_ordered = {}
+    for k, v in sorted(liste.items(), key=lambda x: x[1], reverse=True):
+        liste_ordered[k] = v
+    return liste_ordered
+
 
 list_no_same = []
 new_liste = []
@@ -64,20 +72,25 @@ score = ""
 # json = db.get_player_by_id(ve)
 # obj = pl.deserialize(json)
 # print(f"id: {obj.id} nom: {obj.last_name} prenom: {obj.first_name} rank: {obj.rank}")
+
+dicts = ranking_by_score(dicts)
+print(dicts)
+
 all = []
 old_id = ""
 old_value = ""
 count = 0
-d2 =""
+d2 = ""
 list_same = []
 dd = {}
+enter = False
 for k, v in dicts.items():
     count += 1
     if k not in list_same:
         if old_value == v:
             list_same.append(k)
             list_same.append(old_id)
-            if count == 4:
+            if count == 8:
                 for i in list_same:
                     json = db.get_player_by_id(i)
                     obj = pl.deserialize(json)
@@ -92,6 +105,7 @@ for k, v in dicts.items():
         if old_value != v:
 
             if len(list_same) > 1:
+                enter += True
                 for i in list_same:
                     json = db.get_player_by_id(i)
                     obj = pl.deserialize(json)
@@ -104,6 +118,15 @@ for k, v in dicts.items():
                 d2.clear()
                 dd.clear()
                 list_same.clear()
+
+            if len(list_same) == 0 and old_id != "":
+                if count == 8:
+                    all.append(old_id)
+                    all.append(k)
+
+                if count != 4 and not enter:
+                    all.append(old_id)
+
     old_id = k
     old_value = v
 

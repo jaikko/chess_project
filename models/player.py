@@ -15,6 +15,9 @@ class Player:
         self.sexe = sexe
         self.rank = rank
 
+    def __str__(self):
+        return f" id: {self.id} prenom: {self.first_name} nom: {self.last_name} rank {self.rank}"
+
     def __eq__(self, other):
         return self.rank == other.rank
 
@@ -28,7 +31,7 @@ class Player:
         return cls(**json_dict)
 
     @staticmethod
-    def split_player(liste):
+    def split_player_by_rank(liste):
         liste.sort(key=lambda p: p.rank, reverse=True)
         liste_a = liste[0:4]
         liste_b = liste[4:8]
@@ -36,7 +39,19 @@ class Player:
         return liste_a, liste_b
 
     @staticmethod
-    def ranking_by_rank(self, liste):
+    def split_player_by_score(liste):
+        list_obj = []
+        for k, v in liste.items():
+            json = db.get_player_by_id(k)
+            play = Player.deserialize(json)
+            list_obj.append(play)
+        liste_a = list_obj[0:4]
+        liste_b = list_obj[4:8]
+
+        return liste_a, liste_b
+
+    @staticmethod
+    def ranking_by_rank(liste):
         all = []
         old_id = ""
         old_value = ""
@@ -44,6 +59,7 @@ class Player:
         d2 = ""
         list_same = []
         dd = {}
+        enter = False
         for k, v in liste.items():
             count += 1
             if k not in list_same:
@@ -53,7 +69,7 @@ class Player:
                     if count == 8:
                         for i in list_same:
                             json = db.get_player_by_id(i)
-                            obj = self.deserialize(json)
+                            obj = Player.deserialize(json)
                             dd[obj.rank] = obj.id
                             d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
 
@@ -65,9 +81,10 @@ class Player:
                 if old_value != v:
 
                     if len(list_same) > 1:
+                        enter += True
                         for i in list_same:
                             json = db.get_player_by_id(i)
-                            obj = self.deserialize(json)
+                            obj = Player.deserialize(json)
                             dd[obj.rank] = obj.id
                             d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
 
@@ -76,10 +93,28 @@ class Player:
                         d2.clear()
                         dd.clear()
                         list_same.clear()
+
+                    if len(list_same) == 0 and old_id != "":
+                        if count == 8:
+                            all.append(old_id)
+                            all.append(k)
+
+                        if count != 8 and not enter:
+                            all.append(old_id)
+
             old_id = k
             old_value = v
-        print(all)
-        return all
+
+        score = ""
+        dictio = {}
+        for i in all:
+            for k, v in liste.items():
+                if k == i:
+                    score = v
+
+                dictio[k] = v
+
+        return dictio
 
     @staticmethod
     def ranking_by_score(liste):
@@ -87,6 +122,27 @@ class Player:
         for k, v in sorted(liste.items(), key=lambda x: x[1], reverse=True):
             liste_ordered[k] = v
         return liste_ordered
+
+    @staticmethod
+    def check_same_score(liste):
+        old_score = ""
+        check = False
+        for v in liste.values():
+            if v == old_score:
+                check += True
+
+            old_score = v
+
+        return check
+
+    @classmethod
+    def return_list_object(cls, liste):
+        list_obj = []
+        for k, v in liste.items():
+            json = db.get_player_by_id(k)
+            play = Player.deserialize(json)
+            list_obj.append(play)
+        return list_obj
 
 
 class Test:

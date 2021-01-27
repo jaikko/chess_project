@@ -1,3 +1,4 @@
+import copy
 from collections import OrderedDict
 
 from models import menus, player, db, tournament, match, round
@@ -7,6 +8,7 @@ menu = menus.Menu()
 match = match
 pl = player.Player
 rnd = round
+tr = tournament
 
 
 class ApplicationController:
@@ -86,8 +88,9 @@ class TournamentMenuController:
         self.list_match = []
         self.ranking = {}
         self.ranking_bis = {}
-        self.ranking_end = {}
-
+        self.list_round = None
+        self.list_ordered = {}
+        self.list_obj_round = []
 
     def __call__(self):
         print("tournoi")
@@ -108,43 +111,76 @@ class TournamentMenuController:
 
             self.count += 1
 
-        # name = self.view.get_name()
-        # while not name:
-        #     name = self.view.get_name()
-        # place = self.view.get_place()
-        # while not place:
-        #     place = self.view.get_place()
-        # date = self.view.get_date()
-        # while not date:
-        #     date = self.view.get_date()
-        # put = self.view.check_date()
-        # while put == "o":
-        #     date = self.view.get_date()
-        #     while not date:
-        #         date = self.view.get_date()
-        #     put = self.view.check_date()
-        # time = self.view.get_time()
-        # while not time:
-        #     time = self.view.get_time()
-        # desc = self.view.get_desc()
+        name = self.view.get_name()
+        while not name:
+            name = self.view.get_name()
+        place = self.view.get_place()
+        while not place:
+            place = self.view.get_place()
+        date = self.view.get_date()
+        while not date:
+            date = self.view.get_date()
+        put = self.view.check_date()
+        while put == "o":
+            date = self.view.get_date()
+            while not date:
+                date = self.view.get_date()
+            put = self.view.check_date()
+        time = self.view.get_time()
+        while not time:
+            time = self.view.get_time()
+        desc = self.view.get_desc()
 
         self.get_participant()
-        liste_a, liste_b = pl.split_player(self.entrant)
 
         idtournament = db.get_id_tournament()
         print("generate match")
-
-        for i in range(2):
+        # boucle pour les rounds
+        for num in range(3):
             mm = match.Match()
-            print(self.entrant)
-            liste_a, liste_b = pl.split_player(self.entrant)
-            for j in range(4):
-                mm.add_match(liste_a[j],  0, liste_b[j], 0)
-                self.list_match.append(mm.match)
+            self.list_match.clear()
+            ll = ""
+
+            if num == 0:
+                liste_a, liste_b = pl.split_player_by_rank(self.entrant)
+                for h in range(4):
+                    mm.add_match(liste_a[h], 0, liste_b[h], 0)
+
+                    self.list_match.append(mm.match)
+            else:
+
+                liste_order = pl.ranking_by_score(self.ranking_bis)
+                val = pl.check_same_score(liste_order)
+                if val:
+                    liste_order = pl.ranking_by_rank(liste_order)
+
+                for j in range(0, 7, 2):
+                    ll = pl.return_list_object(liste_order)
+                    mm.add_match(ll[j], 0, ll[j + 1], 0)
+                    self.list_match.append(mm.match)
+                print(self.list_match)
+                # vérification des matchs
+                print(liste_order)
+
+                for ad in self.list_round:
+
+                    p1 = ad[0].player.id
+                    p2 = ad[1].player.id
+                    if mm.match[0].player.id == p1 and mm.match[1].player.id == p2:
+                        print("same")
+                        self.list_match.clear()
+                        mm.add_match(ll[0], 0, ll[2], 0)
+                        self.list_match.append(mm.match)
+                        mm.add_match(ll[1], 0, ll[3], 0)
+                        self.list_match.append(mm.match)
+                        mm.add_match(ll[4], 0, ll[5], 0)
+                        self.list_match.append(mm.match)
+                        mm.add_match(ll[6], 0, ll[7], 0)
+                        self.list_match.append(mm.match)
 
             for row in self.list_match:
-                p1 = row[0][0]
-                p2 = row[1][0]
+                p1 = row[0]
+                p2 = row[1]
                 print("row")
                 print(p1.items())
                 print(p2.items())
@@ -160,76 +196,38 @@ class TournamentMenuController:
                     p2.score += 0.5
 
             for i in self.list_match:
-                self.ranking[i[0][0].player.id] = i[0][0].score
-                self.ranking[i[1][0].player.id] = i[1][0].score
+                self.ranking[i[0].player.id] = i[0].score
+                self.ranking[i[1].player.id] = i[1].score
 
-            print("classement")
-            print(self.ranking)
-            for k, v in sorted(self.ranking.items(), key=lambda x: x[1], reverse=True):
-                self.ranking_bis[k] = v
-            # for k in sorted(self.ranking.keys(), reverse=True):
-            #     json = db.get_player_by_id(k)
-            #     obj = pl.deserialize(json)
-            #     self.ranking_bis[obj.id] = obj.rank
-            #print("%s: %s" % (obj.id, self.ranking[k]))
-            print(self.ranking_bis)
-            all = []
-            old_id = ""
-            old_value = ""
-            count = 0
-            d2 = ""
-            list_same = []
-            dd = {}
-            for k, v in self.ranking_bis.items():
-                count += 1
-                if k not in list_same:
-                    if old_value == v:
-                        list_same.append(k)
-                        list_same.append(old_id)
-                        if count == 8:
-                            for i in list_same:
-                                json = db.get_player_by_id(i)
-                                obj = pl.deserialize(json)
-                                dd[obj.rank] = obj.id
-                                d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
+            if num == 0:
+                self.ranking_bis = self.ranking.copy()
+            else:
 
-                            for ke, va in d2.items():
-                                all.append(va)
-                            d2.clear()
-                            dd.clear()
-                            list_same.clear()
-                    if old_value != v:
+                for k, v in self.ranking.items():
+                    for key, val in self.ranking_bis.items():
 
-                        if len(list_same) > 1:
-                            for i in list_same:
-                                json = db.get_player_by_id(i)
-                                obj = pl.deserialize(json)
-                                dd[obj.rank] = obj.id
-                                d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
+                        if k == key:
+                            value = val + v
 
+                            self.ranking_bis[k] = value
 
-                            for ke, va in d2.items():
-                                all.append(va)
-                            d2.clear()
-                            dd.clear()
-                            list_same.clear()
-                old_id = k
-                old_value = v
+            rr = rnd.Round("round " + str(num + 1), self.list_match)
+            self.list_obj_round.append(rr)
+            self.list_round = rr.matchs.copy()
 
-            print(all)
-            self.entrant.clear()
-            for s in all:
-                json = db.get_player_by_id(s)
-                obj = pl.deserialize(json)
+        tr.Tournament(idtournament, name, place, desc, time, "", date, self.list_obj_round, self.entrant)
+        print("classement")
+        print(f" bis {self.ranking_bis}")
+        #affichage classement
+        liste_order = pl.ranking_by_score(self.ranking_bis)
+        val = pl.check_same_score(liste_order)
+        if val:
+            liste_order = pl.ranking_by_rank(liste_order)
 
-                self.entrant.append(obj)
+        ll = pl.return_list_object(liste_order)
 
-                print(f"id: {obj.id} nom: {obj.last_name} prenom: {obj.first_name} rank: {obj.rank}")
-        print(self.entrant)
-        rr = rnd.Round("Round 1", self.list_match)
-        #print(rr.matchs)
-        #print(self.ranking)
-        # tr_obj = self.tr_obj(idtournament, name, place, desc, time)
+        for pla in ll:
+            print(pla)
 
         # tr_serialize = db.tournament_db(tr_obj)
         # db.add_tournament_db(tr_serialize)
@@ -248,4 +246,3 @@ class TournamentMenuController:
             play = pl.deserialize(json)
 
             self.entrant.append(play)
-
