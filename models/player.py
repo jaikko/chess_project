@@ -8,15 +8,18 @@ class Player:
 
     def __init__(self, id, firstname, lastname, date_of_birth, sexe, rank):
         self.id = id
-        self.first_name = firstname
-        self.last_name = lastname
+        self.firstname = firstname
+        self.lastname = lastname
         self.date_of_birth = date_of_birth
         self.sexe = sexe
         self.rank = rank
 
     def __str__(self):
-        return f" id: {self.id} nom: {self.last_name} prenom: {self.first_name} date de naissance: {self.date_of_birth}" \
+        return f" id: {self.id} nom: {self.lastname} prenom: {self.firstname} date de naissance: {self.date_of_birth}" \
                f" sexe: {self.sexe}  rank {self.rank}"
+
+    def str(self):
+        return f"{self.lastname} {self.firstname} ({self.id})"
 
     @classmethod
     def deserialize(cls, json_string):
@@ -46,6 +49,7 @@ class Player:
 
     @staticmethod
     def ranking_by_rank(liste):
+        print(liste)
         all = []
         old_id = ""
         old_value = ""
@@ -99,14 +103,13 @@ class Player:
             old_id = k
             old_value = v
 
+
         score = ""
         dictio = {}
         for i in all:
             for k, v in liste.items():
                 if k == i:
-                    score = v
-
-                dictio[k] = v
+                    dictio[i] = v
 
         return dictio
 

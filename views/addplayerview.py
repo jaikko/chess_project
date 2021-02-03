@@ -20,7 +20,7 @@ class AddPlayerView:
 
     @staticmethod
     def get_sexe():
-        sexe = input(("sexe: "))
+        sexe = input("sexe: ")
         return sexe
 
     @staticmethod

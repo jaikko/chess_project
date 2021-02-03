@@ -8,6 +8,8 @@ class PlayerOrderByNameView:
         for i in self.players:
             print(i)
 
+
+
     @staticmethod
     def quit():
         print("")

@@ -16,3 +16,8 @@ class AllTournamentView:
                         if v != "":
                             print(f"{k}: {v} ", end="")
             print()
+
+    @staticmethod
+    def quit():
+        leave = input("Appuyer sur  entrée pour revenir au menu: ")
+        return leave

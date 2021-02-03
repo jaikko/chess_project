@@ -1,12 +1,13 @@
+from models import player
+
+
 class MatchEntry1:
     def __init__(self, player, score=0):
         self.player = player
         self.score = score
 
     def items(self):
-        return f"Joueur 1: {self.player.first_name} {self.player.last_name}({self.player.id})   "
-
-
+        return f"Joueur 1: {self.player.firstname} {self.player.lastname}({self.player.id})"
 
 
 class MatchEntry2:
@@ -15,9 +16,7 @@ class MatchEntry2:
         self.score = score
 
     def items(self):
-        return f"Joueur 2: {self.player.first_name} {self.player.last_name}({self.player.id}) vs  "
-
-
+        return f"Joueur 2: {self.player.firstname} {self.player.lastname}({self.player.id})"
 
 
 class Match:
@@ -41,3 +40,35 @@ class Match:
     @staticmethod
     def check_match(liste, new_liste):
         pass
+
+    def return_list_obj(self, liste):
+
+        pl1 = ""
+        pl2 = ""
+        score1 = ""
+        score2 = ""
+        count = 0
+        liste_obj = []
+        for g in liste:
+
+            for f in g:
+                count += 1
+                if count == 1:
+
+                    for k, v in f.items():
+                        if k == "player":
+                            pl1 = player.Player.deserialize(v)
+                        if k == "score":
+                            score1 = v
+                if count == 2:
+
+                    for k, v in f.items():
+                        if k == "player":
+                            pl2 = player.Player.deserialize(v)
+                        if k == "score":
+                            score2 = v
+
+            Match.add_match(self, pl1, score1, pl2, score2)
+            liste_obj.append(self.match)
+            count = 0
+        return liste_obj

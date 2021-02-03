@@ -23,3 +23,7 @@ class EditPlayerView:
     def display_player_choice(player):
         return print(player)
 
+    @staticmethod
+    def error_id_availible():
+        print()
+        print("Id introuvable, saisir un nouveau")

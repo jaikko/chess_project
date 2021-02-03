@@ -1,12 +1,13 @@
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, where
+from models import player, match
 
 
 # sérialisé player
 def serialize_player(new):
     serialized_player = {
         'id': int(new.id),
-        'firstname': new.first_name,
-        'lastname': new.last_name,
+        'firstname': new.firstname,
+        'lastname': new.lastname,
         'date_of_birth': new.date_of_birth,
         'sexe': new.sexe,
         'rank': int(new.rank)
@@ -41,6 +42,13 @@ def get_id_player():
         num += 1
     if num == 0:
         num = 1
+    return num
+
+
+# récuper le dernier id
+def get_max_id():
+    db = TinyDB("data/player.json")
+    num = len(db)
     return num
 
 
@@ -86,6 +94,7 @@ def get_all_player():
         players.append(row)
     return players
 
+
 # récupérer tous les joueurs
 def get_all_tournament():
     liste = []
@@ -93,3 +102,35 @@ def get_all_tournament():
     for row in db:
         liste.append(row)
     return liste
+
+
+# récupérer tous les joueurs d'un tournoi
+def get_all_player_by_tournament(id):
+    db = TinyDB('data/tournament.json')
+    rs = db.search(where('id') == int(id))
+    liste = []
+    for k, v in rs[0].items():
+        if k == "players":
+            for i in v:
+                liste.append(i)
+    return liste
+
+
+# récupérer tous les matchs d'un tournoi
+def get_all_match_by_tournament(id):
+    db = TinyDB('data/tournament.json')
+    rs = db.search(where('id') == int(id))
+    liste = []
+    liste_bis = []
+    for k, v in rs[0].items():
+        if k == "round":
+            for i in v:
+                liste.append(i)
+
+    for n in range(4):
+        for ke, ve in liste[n].items():
+            if ke == "matchs":
+                for i in ve:
+                    liste_bis.append(i)
+
+    return liste_bis

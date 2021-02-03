@@ -3,7 +3,8 @@ import jsons as jsons
 
 from models import menu, player, db, match, tournament, round
 from views import homemenuview, playermenuview, tournamentmenuview, addplayerview, editplayerview, \
-    playerorderbynameview, playerorderbyrankview, newtournamentview, alltournamentview
+    playerorderbynameview, playerorderbyrankview, newtournamentview, alltournamentview, menuplayerbytournamentview \
+    , playerbytournamentbynameview, playerbytournamentbyrankview, matchbytournamentview, roundbytournamentview
 
 menu = menu.Menu()
 player = player.Player
@@ -53,7 +54,7 @@ class PlayerMenuController:
     def __call__(self):
         self.menu.add("1", "Ajouter des joueurs", AddPlayerController())
         self.menu.add("2", "Modifier un joueur", EditPlayerController())
-        self.menu.add("3", "Liste de tous les acteurs", DisplayPlayerController())
+        self.menu.add("3", "Liste de tous les acteurs", PlayerController())
         self.menu.add("4", "Retour", HomeMenuController())
         user_choice = self.view.get_user_choice()
         check = self.menu.__contains__(user_choice)
@@ -69,7 +70,7 @@ class PlayerMenuController:
 
 
 # Menu pour choisir choix du trie des joueurs
-class DisplayPlayerController:
+class PlayerController:
     def __init__(self):
         self.menu = menu
         self.view = playermenuview.PlayerMenuView(self.menu)
@@ -97,7 +98,7 @@ class PlayerOrderByName:
     def __init__(self):
         self.players = db.get_all_player()
         self.players = player.return_list_object_from_list(self.players)
-        self.players.sort(key=lambda p: p.last_name, reverse=False)
+        self.players.sort(key=lambda p: p.lastname, reverse=False)
 
         self.view = playerorderbynameview.PlayerOrderByNameView(self.players)
 
@@ -108,10 +109,10 @@ class PlayerOrderByName:
         while put != "":
             put = self.view.quit()
 
-        DisplayPlayerController().__call__()
+        PlayerController().__call__()
 
 
-# Lister joueur par Nom
+# Lister joueur par classement
 class PlayerOrderByRank:
     def __init__(self):
         self.players = db.get_all_player()
@@ -127,7 +128,7 @@ class PlayerOrderByRank:
         while put != "":
             put = self.view.quit()
 
-        DisplayPlayerController().__call__()
+        PlayerController().__call__()
 
 
 # Ajouter joueur
@@ -175,6 +176,13 @@ class EditPlayerController:
     def __call__(self):
         self.view.display_player()
         id = self.view.get_user_choice()
+        max = db.get_max_id()
+        while not id.isdigit():
+            id = self.view.get_user_choice()
+
+        while int(id) > int(max):
+            self.view.error_id_availible()
+            id = self.view.get_user_choice()
         json = db.get_player_by_id(id)
         p = player.deserialize(json)
         self.view.display_player_choice(p)
@@ -192,10 +200,10 @@ class TournamentMenuController:
         self.menu.clear()
         self.menu.add("1", "Créer un tournoi", NewTournamentController())
         self.menu.add("2", "Liste de tous les tournois", DisplayTournamentController())
-        self.menu.add("3", "Liste de tous les tours d'un tournoi", "")
-        self.menu.add("4", "Liste de tous les matchs d'un tournoi", "")
-        self.menu.add("4", "Liste de tous les joueurs d'un tournoi", "")
-        self.menu.add("5", "Retour", HomeMenuController())
+        self.menu.add("3", "Liste de tous les tours d'un tournoi", RoundByTournamentController())
+        self.menu.add("4", "Liste de tous les matchs d'un tournoi", MatchByTournament())
+        self.menu.add("5", "Liste de tous les joueurs d'un tournoi", MenuPlayerByTournamentController())
+        self.menu.add("6", "Retour", HomeMenuController())
         user_choice = self.view.get_user_choice()
         check = self.menu.__contains__(user_choice)
         check = eval(check)
@@ -209,7 +217,8 @@ class TournamentMenuController:
         user_choice.controller()
 
 
-class NewTournamentController():
+# Créer un nouveau tournoi
+class NewTournamentController:
     def __init__(self):
         self.players = None
         self.time = tournament.Tournament.time
@@ -222,7 +231,7 @@ class NewTournamentController():
         self.list_match = []
         self.ranking = {}
         self.ranking_bis = {}
-        self.list_round = None
+        self.list_round = []
         self.list_ordered = {}
         self.list_obj_round = []
         self.list_player_json = []
@@ -232,6 +241,8 @@ class NewTournamentController():
         print("tournoi")
         self.players = db.get_all_player()
         self.get_object_display()
+        max = db.get_max_id()
+
         while self.count <= 7:
             self.view.display_player()
             choice = self.view.get_id_choice()
@@ -239,9 +250,16 @@ class NewTournamentController():
             while not choice.isdigit():
                 choice = self.view.get_id_choice()
 
-            while choice in self.idplayer:
-                print("error")
+            while int(choice) > int(max):
+                self.view.error_id_availible()
                 choice = self.view.get_id_choice()
+
+            while choice in self.idplayer:
+                self.view.error_id()
+                choice = self.view.get_id_choice()
+                while int(choice) > int(max):
+                    self.view.error_id_availible()
+                    choice = self.view.get_id_choice()
 
             self.idplayer.append(choice)
 
@@ -270,9 +288,10 @@ class NewTournamentController():
         self.get_participant()
 
         idtournament = db.get_id_tournament()
-        print("generate match")
+        print("generation des matchs")
+        print()
         # boucle pour les rounds
-        for num in range(3):
+        for num in range(4):
             mm = match.Match()
             self.list_match.clear()
             ll = ""
@@ -293,35 +312,71 @@ class NewTournamentController():
                 val = player.check_same_score(liste_order)
                 if val:
                     liste_order = player.ranking_by_rank(liste_order)
+                    print(f"ls{liste_order}")
 
                 for j in range(0, 7, 2):
                     ll = player.return_list_object_from_dict(liste_order)
+
                     mm.add_match(ll[j], 0, ll[j + 1], 0)
                     self.list_match.append(mm.match)
-                print(self.list_match)
+
                 # vérification des matchs
-                print(liste_order)
+                cc = 0
 
                 for ad in self.list_round:
-
+                    cc += 1
                     p1 = ad[0].player.id
                     p2 = ad[1].player.id
-                    if mm.match[0].player.id == p1 and mm.match[1].player.id == p2:
-                        print("same")
-                        self.list_match.clear()
-                        mm.add_match(ll[0], 0, ll[2], 0)
-                        self.list_match.append(mm.match)
-                        mm.add_match(ll[1], 0, ll[3], 0)
-                        self.list_match.append(mm.match)
-                        mm.add_match(ll[4], 0, ll[5], 0)
-                        self.list_match.append(mm.match)
-                        mm.add_match(ll[6], 0, ll[7], 0)
-                        self.list_match.append(mm.match)
+                    for row in self.list_match:
+
+                        if row[0].player.id == p1 and row[1].player.id == p2 or row[0].player.id == p2 \
+                                and row[1].player.id == p1:
+
+                            if cc in [1, 5, 9]:
+
+                                self.list_match.clear()
+                                mm.add_match(ll[0], 0, ll[2], 0)
+                                self.list_match.append(mm.match)
+                                mm.add_match(ll[1], 0, ll[3], 0)
+                                self.list_match.append(mm.match)
+                                mm.add_match(ll[4], 0, ll[5], 0)
+                                self.list_match.append(mm.match)
+                                mm.add_match(ll[6], 0, ll[7], 0)
+                                self.list_match.append(mm.match)
+
+                                for a in self.list_round:
+
+                                    p1 = a[0].player.id
+                                    p2 = a[1].player.id
+                                    for rows in self.list_match:
+                                        if rows[0].player.id == p1 and rows[1].player.id == p2 or rows[
+                                            0].player.id == p2 \
+                                                and rows[1].player.id == p1:
+                                            self.list_match.clear()
+                                            mm.add_match(ll[0], 0, ll[4], 0)
+                                            self.list_match.append(mm.match)
+                                            mm.add_match(ll[2], 0, ll[1], 0)
+                                            self.list_match.append(mm.match)
+                                            mm.add_match(ll[3], 0, ll[7], 0)
+                                            self.list_match.append(mm.match)
+                                            mm.add_match(ll[5], 0, ll[6], 0)
+                                            self.list_match.append(mm.match)
+
+                            if cc in [4, 8, 12]:
+                                self.list_match.clear()
+                                mm.add_match(ll[0], 0, ll[4], 0)
+                                self.list_match.append(mm.match)
+                                mm.add_match(ll[2], 0, ll[1], 0)
+                                self.list_match.append(mm.match)
+                                mm.add_match(ll[3], 0, ll[7], 0)
+                                self.list_match.append(mm.match)
+                                mm.add_match(ll[6], 0, ll[5], 0)
+                                self.list_match.append(mm.match)
 
             for row in self.list_match:
                 p1 = row[0]
                 p2 = row[1]
-                print("row")
+
                 print(p1.items())
                 print(p2.items())
 
@@ -358,7 +413,9 @@ class NewTournamentController():
 
             rr = rnd.Round("round " + str(num + 1), date, date_start, end_hour, self.list_match, )
             self.list_obj_round.append(jsons.dump(rr))
-            self.list_round = rr.matchs.copy()
+            # self.list_round = rr.matchs.copy()
+            for row in rr.matchs:
+                self.list_round.append(row)
 
         tr_object = tr.Tournament(idtournament, name, place, desc, time, 4, date, self.list_obj_round,
                                   self.list_player_json)
@@ -376,10 +433,12 @@ class NewTournamentController():
         for pla in ll:
             print(pla)
 
-        print(tr_object)
         tr_serialize = db.tournament_db(tr_object)
-        print(tr_serialize)
         db.add_tournament_db(tr_serialize)
+
+        put = self.view.quit()
+        if put == "":
+            TournamentMenuController().__call__()
 
     # convertir en objet pour l'affichage
     def get_object_display(self):
@@ -401,14 +460,133 @@ class NewTournamentController():
 class DisplayTournamentController:
 
     def __init__(self):
-
         self.info = []
         liste = db.get_all_tournament()
         self.info = tr.Tournament.deserialize(liste)
         self.view = alltournamentview.AllTournamentView(self.info)
 
     def __call__(self):
+        self.view.display_tournament()
+        quit = self.view.quit()
+        if quit == "":
+            TournamentMenuController().__call__()
+
+
+# Menu pour choisir trie liste de joueurs d"un tournoi
+class MenuPlayerByTournamentController:
+
+    def __init__(self):
+        self.menu = menu
+        self.view = menuplayerbytournamentview.MenuPlayerByTournamentView(self.menu)
+
+    def __call__(self):
+        self.menu.clear()
+        self.menu.add("1", "Trier par ordre alphétique", PlayerByTournamentByNameController())
+        self.menu.add("2", "Trier par classement", PlayerByTournamentByRankController())
+        self.menu.add("3", "Retour", TournamentMenuController())
+
+        user_choice = self.view.get_user_choice()
+        check = self.menu.__contains__(user_choice)
+        check = eval(check)
+
+        while not check:
+            self.view.display_error()
+            user_choice = self.view.get_user_choice()
+            check = self.menu.__contains__(user_choice)
+
+        user_choice = self.view.return_controller(user_choice)
+        user_choice.controller()
+
+
+# Afficher les joueurs d'un tournoi par classement
+class PlayerByTournamentByRankController:
+    def __init__(self):
+
+        self.info = []
+        liste = db.get_all_tournament()
+        self.info = tr.Tournament.deserialize(liste)
+        self.list_obj = []
+        self.view = playerbytournamentbyrankview.PlayerByTournamentByRank(self.info, self.list_obj)
+
+    def __call__(self):
 
         self.view.display_tournament()
+        val = self.view.get_user_choice()
+        rs = db.get_all_player_by_tournament(val)
+        for i in rs:
+            pl = player.deserialize(i)
+            self.list_obj.append(pl)
+        self.list_obj.sort(key=lambda p: p.rank, reverse=False)
+        self.view.display_player()
+        quit = self.view.quit()
+        if quit == "":
+            MenuPlayerByTournamentController().__call__()
+
+
+# Afficher les joueurs d'un tournoi par Nom
+class PlayerByTournamentByNameController:
+    def __init__(self):
+        self.info = []
+        liste = db.get_all_tournament()
+        self.info = tr.Tournament.deserialize(liste)
+        self.list_obj = []
+        self.view = playerbytournamentbynameview.PlayerByTournamentByName(self.info, self.list_obj)
+
+    def __call__(self):
+
+        self.view.display_tournament()
+        val = self.view.get_user_choice()
+        rs = db.get_all_player_by_tournament(val)
+        for i in rs:
+            pl = player.deserialize(i)
+            self.list_obj.append(pl)
+        self.list_obj.sort(key=lambda p: p.lastname, reverse=False)
+        self.view.display_player()
+        quit = self.view.quit()
+        if quit == "":
+            MenuPlayerByTournamentController().__call__()
+
+
+# Lister tous les matchs d'un tournoi
+class MatchByTournament:
+
+    def __init__(self):
+        self.info = []
+        liste = db.get_all_tournament()
+        self.info = tr.Tournament.deserialize(liste)
+        self.list_obj = []
+        self.view = matchbytournamentview.MatchByTournament(self.info)
+
+    def __call__(self):
+        self.view.display_tournament()
+        val = self.view.get_user_choice()
+        liste = db.get_all_match_by_tournament(val)
+        self.list_obj = match.Match.return_list_obj(self, liste)
+        self.view.display_match(self.list_obj)
+        put = self.view.quit()
+        if put == "":
+            TournamentMenuController().__call__()
+
+
+# Liste de tous les tours d'un tournoi
+class RoundByTournamentController:
+
+    def __init__(self):
+        self.info = []
+        liste = db.get_all_tournament()
+        self.info = tr.Tournament.deserialize(liste)
+        self.list_obj = []
+        self.view = roundbytournamentview.RoundByTournamentView(self.info)
+
+    def __call__(self):
+        self.view.display_tournament()
+        val = self.view.get_user_choice()
+        liste = db.get_all_match_by_tournament(val)
+        self.list_obj = match.Match.return_list_obj(self, liste)
+        dic = rnd.Round.return_dict_object(self.list_obj)
+        self.view.display_round(dic)
+        put =  self.view.quit()
+        if put == "":
+            TournamentMenuController().__call__()
 
 
