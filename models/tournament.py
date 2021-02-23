@@ -4,7 +4,7 @@ import json
 class Tournament:
     time = ["bullet", "blitz", "coup rapide"]
 
-    def __init__(self, id, name, place, desc, time, laps=4, date=[], rounds="", player= []):
+    def __init__(self, id, name, place, desc, time, laps=4, date=[], rounds="", player=[]):
         self.name = name
         self.place = place
         self.date = date
@@ -15,9 +15,14 @@ class Tournament:
         self.desc = desc
         self.id = id
 
+
+class TrFunction:
+
+    def __init__(self):
+        pass
+
     @staticmethod
     def deserialize(json_string):
-
         liste = []
         for i in json_string:
             json_string = str(i).replace("\'", "\"").strip('[]')
@@ -25,5 +30,3 @@ class Tournament:
             liste.append(json_dict)
 
         return liste
-
-

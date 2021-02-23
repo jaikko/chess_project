@@ -4,19 +4,19 @@ class EditPlayerView:
         self.player = player
 
     def display_player(self):
+        print()
         for i in self.player:
             print(i)
 
-    def get_user_choice(self):
+    @staticmethod
+    def get_user_choice():
         print()
-
-        self.display_player()
         choice = input("Choississez un id: ")
         return choice
 
     @staticmethod
     def change_value():
-        rank = input("entrez son nouveau classement")
+        rank = input("entrez son nouveau classement:")
         return rank
 
     @staticmethod
@@ -24,6 +24,7 @@ class EditPlayerView:
         return print(player)
 
     @staticmethod
-    def error_id_availible():
+    def left():
         print()
-        print("Id introuvable, saisir un nouveau")
+        leave = input("Appuyer sur  entrée pour revenir au menu: ")
+        return leave

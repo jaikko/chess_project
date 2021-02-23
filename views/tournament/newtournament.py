@@ -43,17 +43,20 @@ class NewTournamentView:
     def get_date():
         print()
         date = input("date: ")
-
         return date
+
     @staticmethod
     def check_date():
         put = input("appuyer sur o pour ajouter une nouvelle date sinon entrée")
         return put
 
-    def get_time(self):
+    def show_time(self):
         print()
         for i in self.time:
             print(i)
+
+    @staticmethod
+    def get_time():
         time = input("contrôle du temps: ")
         return time
 

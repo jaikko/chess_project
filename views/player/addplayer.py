@@ -28,9 +28,6 @@ class AddPlayerView:
         rank = input("rang: ")
         return rank
 
-    #def add_player(self, id, lastname, firstname, date, sexe, rank):
-        #return self.player(id, firstname, lastname, date, sexe, rank)
-
     @staticmethod
     def quit():
         leave = input("Appuyer sur c pour ajouter un nouveau joueur ou entrée pour revenir au menu: ")

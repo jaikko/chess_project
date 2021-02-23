@@ -13,5 +13,3 @@ class PlayerOrderByNameView:
         print("")
         leave = input("Appuyer entrée pour quitter: ")
         return leave
-
-

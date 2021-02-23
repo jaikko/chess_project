@@ -15,7 +15,7 @@ class Player:
         self.rank = rank
 
     def __str__(self):
-        return f" id: {self.id} nom: {self.lastname} prenom: {self.firstname} date de naissance: {self.date_of_birth}" \
+        return f" id: {self.id} nom: {self.lastname} prenom: {self.firstname} date de naissance: {self.date_of_birth}"\
                f" sexe: {self.sexe}  rank {self.rank}"
 
     def str(self):
@@ -26,6 +26,49 @@ class Player:
         json_string = str(json_string).replace("\'", "\"").strip('[]')
         json_dict = json.loads(str(json_string))
         return cls(**json_dict)
+
+    @classmethod
+    def return_list_object_from_dict(cls, dic):
+        list_obj = []
+        for k, v in dic.items():
+            json = db.get_player_by_id(k)
+            play = Player.deserialize(json)
+            list_obj.append(play)
+        return list_obj
+
+    @classmethod
+    def return_list_object_from_list(cls, liste):
+        list_obj = []
+        for i in liste:
+            play = Player.deserialize(i)
+            list_obj.append(play)
+        return list_obj
+
+
+class PlayerFunction:
+
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def get_score_by_player(id):
+        dic = {}
+        score = 0
+        all_player = db.get_all_player_by_tournament(id)
+        new_liste = Player.return_list_object_from_list(all_player)
+        list_match = db.get_all_match_by_tournament(id)
+        list_match = match.MatchFunction.return_list_obj(list_match)
+
+        for i in new_liste:
+            for j in list_match:
+                if i.id == j.p1.id:
+                    score += j.s1
+                if i.id == j.p2.id:
+                    score += j.s2
+
+            dic[i.id] = score
+            score = 0
+        return dic
 
     @staticmethod
     def split_player_by_rank(liste):
@@ -49,65 +92,65 @@ class Player:
 
     @staticmethod
     def ranking_by_rank(dic):
-        all = []
+        print(dic)
         old_id = ""
-        old_value = ""
-        count = 0
-        d2 = ""
+        old_score = ""
         list_same = []
         dd = {}
-        enter = False
+        d2 = {}
+        alls = []
+        count = 0
+
         for k, v in dic.items():
-            count += 1
-            if k not in list_same:
-                if old_value == v:
-                    if k not in list_same:
-                        list_same.append(k)
-                    if old_id not in list_same:
-                        list_same.append(old_id)
-                    if count == 8:
-                        for i in list_same:
-                            json = db.get_player_by_id(i)
-                            obj = Player.deserialize(json)
-                            dd[obj.rank] = obj.id
-                            d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
+            if v == old_score:
+                if old_id not in list_same:
+                    list_same.append(old_id)
+                if k not in list_same:
+                    list_same.append(k)
+                if old_id in alls:
+                    alls.pop()
 
-                        for ke, va in d2.items():
-                            all.append(va)
-                        d2.clear()
-                        dd.clear()
-                        list_same.clear()
-                if old_value != v:
+                if count == 7:
 
-                    if len(list_same) > 1:
-                        enter += True
-                        for i in list_same:
-                            json = db.get_player_by_id(i)
-                            obj = Player.deserialize(json)
-                            dd[obj.rank] = obj.id
-                            d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
+                    for i in list_same:
+                        json = db.get_player_by_id(i)
+                        obj = Player.deserialize(json)
+                        dd[obj.rank] = obj.id
+                        d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
 
-                        for ke, va in d2.items():
-                            all.append(va)
-                        d2.clear()
-                        dd.clear()
-                        list_same.clear()
+                    for ke, va in d2.items():
+                        alls.append(va)
 
-                    if len(list_same) == 0 and old_id != "":
-                        if count == 8:
-                            all.append(old_id)
-                            all.append(k)
+                    d2.clear()
+                    dd.clear()
+                    list_same.clear()
 
-                        if count != 8 and not enter:
-                            all.append(old_id)
+            else:
+
+                if len(list_same) > 1:
+                    for i in list_same:
+                        json = db.get_player_by_id(i)
+                        obj = Player.deserialize(json)
+                        dd[obj.rank] = obj.id
+                        d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
+                    for ke, va in d2.items():
+                        alls.append(va)
+                    d2.clear()
+                    dd.clear()
+                    list_same.clear()
+                    alls.append(k)
+
+                else:
+                    if k not in alls:
+                        alls.append(k)
 
             old_id = k
-            old_value = v
+            old_score = v
+            count += 1
 
-        score = ""
         dictio = {}
-
-        for i in all:
+        print(alls)
+        for i in alls:
             for k, v in dic.items():
                 if k == i:
                     dictio[i] = v
@@ -132,46 +175,3 @@ class Player:
             old_score = v
 
         return check
-
-    @classmethod
-    def return_list_object_from_dict(cls, liste):
-        list_obj = []
-        for k, v in liste.items():
-            json = db.get_player_by_id(k)
-            play = Player.deserialize(json)
-            list_obj.append(play)
-        return list_obj
-
-    @classmethod
-    def return_list_object_from_list(cls, liste):
-        list_obj = []
-        for i in liste:
-            play = Player.deserialize(i)
-            list_obj.append(play)
-        return list_obj
-
-
-class PLayerFunction:
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def get_score_by_player(id):
-        dic = {}
-        score = 0
-        all_player = db.get_all_player_by_tournament(id)
-        new_liste = Player.return_list_object_from_list(all_player)
-        list_match = db.get_all_match_by_tournament(id)
-        list_match = match.Match.return_list_obj(list_match)
-
-        for i in new_liste:
-            for j in list_match:
-                if i.id == j.p1.id:
-                    score += j.s1
-                if i.id == j.p2.id:
-                    score += j.s2
-
-            dic[i.id] = score
-            score = 0
-        return dic

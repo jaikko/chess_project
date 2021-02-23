@@ -1,6 +1,6 @@
-import jsons
+import json
 
-from models import db, match, player
+from models import db
 
 
 class Round:
@@ -12,47 +12,53 @@ class Round:
         self.hour_start = hour_start
         self.matchs = matchs
 
+    @classmethod
+    def deserialize(cls, json_string):
+        liste = []
+        for i in json_string:
+            json_string = str(i).replace("\'", "\"").strip('[]')
+            json_dict = json.loads(str(json_string))
+            liste.append(cls(**json_dict))
+        return liste
+
+
+class RoundFunction:
+
+    def __init__(self):
+        pass
+
     @staticmethod
-    def return_list_object(liste_matchs):
+    def return_list_object(lm, id):
 
-            count = 0
-            new_liste = []
-            dic = {}
-            last_dic = {}
-            stock = []
-            for i in liste_matchs:
-                count += 1
-                if count < 5:
-                    new_liste.append(i)
-                    if count == 4:
-                        rnd = Round("Round 1", "", "", "", new_liste)
-                        stock.append(rnd)
-                        # dic['Round 1'] = new_liste
-                        new_liste.clear()
+        len_match = len(db.get_all_match_by_tournament(id))
+        list_tr = db.get_all_round_by_tournament(id)
+        liste = Round.deserialize(list_tr)
+        stock = []
+        for count in range(1, len_match+1):
 
-                elif 4 < count < 9:
-                    new_liste.append(i)
-                    if count == 8:
-                        rnd = Round("Round 2", "", "", "", new_liste)
-                        stock.append(rnd)
-                        # dic['Round 2'] = new_liste
-                        new_liste.clear()
-                elif 8 < count < 13:
-                    new_liste.append(i)
-                    if count == 12:
-                        rnd = Round("Round 3", "", "", "", new_liste)
-                        stock.append(rnd)
-                        print(f"st{stock}")
-                        # dic['Round 3'] = new_liste
-                        new_liste.clear()
+            if count < 5:
+                if count == 4:
+                    obj = liste[0]
+                    rnd = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[0], lm[1], lm[2], lm[3]])
+                    stock.append(rnd)
+                    print(stock[0].matchs)
 
-                elif 12 < count < 17:
-                    new_liste.append(i)
-                    if count == 16:
-                        rnd = Round("Round 4", "", "", "", new_liste)
-                        stock.append(rnd)
-                        # dic['Round 4'] = new_liste
-                return stock
+            elif 4 < count < 9:
+                if count == 8:
+                    obj = liste[1]
+                    rnd0 = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[4], lm[5], lm[6], lm[7]])
+                    stock.append(rnd0)
 
+            elif 8 < count < 13:
+                if count == 12:
+                    obj = liste[2]
+                    rnd1 = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[8], lm[9], lm[10], lm[11]])
+                    stock.append(rnd1)
 
+            elif 12 < count < 17:
+                if count == 16:
+                    obj = liste[3]
+                    rnd2 = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[12], lm[13], lm[14], lm[15]])
+                    stock.append(rnd2)
 
+        return stock

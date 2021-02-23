@@ -1,6 +1,5 @@
 import jsons
 from tinydb import TinyDB, Query, where
-from models import tournament
 
 
 # sérialisé player
@@ -58,11 +57,33 @@ def get_id_player():
     return num
 
 
-# récuper le dernier id
+# récuper le dernier id player
 def get_max_id():
     db = TinyDB("data/player.json")
     num = len(db)
     return num
+
+
+# récuperer tous les id tournoi
+def get_all_id_tr():
+    db = TinyDB("data/tournament.json")
+    liste = []
+    for row in db:
+        for k, v in row.items():
+            if k == "id":
+                liste.append(v)
+    return liste
+
+
+# récuperer tous les id joueur
+def get_all_id_pl():
+    db = TinyDB("data/player.json")
+    liste = []
+    for row in db:
+        for k, v in row.items():
+            if k == "id":
+                liste.append(v)
+    return liste
 
 
 # récupérer le dernier idtournament et le retourner le nouvelle id
@@ -86,6 +107,7 @@ def tournament_db(tournament):
         'time': tournament.time,
         'laps': tournament.laps,
         'desc': tournament.desc,
+        'date': tournament.date,
         'round': tournament.round
     }
     return serialized_tr
@@ -129,6 +151,18 @@ def get_all_player_by_tournament(id):
     return liste
 
 
+# récupérer tous les id des joueurs d'un tournoi
+def get_all_player_id_by_tournament(id):
+    db = TinyDB('data/tournament.json')
+    rs = db.search(where('id') == int(id))
+    liste = []
+    for k, v in rs[0].items():
+        if k == "players":
+            for i in v:
+                liste.append(i['id'])
+    return liste
+
+
 # récupérer nombre de round
 def get_number_round(id):
     db = TinyDB('data/tournament.json')
@@ -145,6 +179,20 @@ def get_round(id):
     for k, v in rs[0].items():
         if k == "round":
             return v
+
+
+# récupérer tous les rounds d'un tournoi
+def get_all_round_by_tournament(id):
+    db = TinyDB('data/tournament.json')
+    rs = db.search(where('id') == int(id))
+    liste_bis = []
+
+    for k, v in rs[0].items():
+        if k == "round":
+            for i in v:
+                liste_bis.append(i)
+
+    return liste_bis
 
 
 # récupérer tous les matchs d'un tournoi
@@ -172,6 +220,7 @@ def update_tr_round(id, r):
     old_liste = get_all_match_by_tournament(id)
     db = TinyDB("data/tournament.json")
     tr = Query()
+    print(r)
     r_json = jsons.dump(r)
 
     if len(old_liste) < 4:
@@ -191,3 +240,24 @@ def update_tr_round(id, r):
         if 12 <= len(old_liste) < 16:
             liste_json = [rv[0], rv[1], rv[2], r_json]
             db.update({'round': liste_json}, tr.id == int(id))
+
+
+# vérifier si rank identique
+
+def same_rank(id):
+    db = TinyDB('data/tournament.json')
+    rs = db.search(where('id') == int(id))
+    liste = []
+    same = False
+
+    for k, v in rs[0].items():
+        if k == "players":
+            for i in v:
+
+                liste.append(i)
+    for i in range(8):
+        for j in liste:
+            if liste[i]['rank'] == j['rank']:
+                same = True
+
+    return same

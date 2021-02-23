@@ -38,7 +38,6 @@ class MatchByTournament:
                             print(f"{k}: {v} ", end="")
             print()
 
-
     @staticmethod
     def get_user_choice():
         print()
@@ -52,6 +51,12 @@ class MatchByTournament:
         return leave
 
     @staticmethod
+    def end_round():
+        print()
+        enter = input("Appuyer sur  entrée pour valider le round: ")
+        return enter
+
+    @staticmethod
     def left():
         print()
         leave = input("Appuyer sur  entrée pour revenir au menu  ou o pour continuer: ")
@@ -60,5 +65,44 @@ class MatchByTournament:
     @staticmethod
     def display_rank_final(liste):
         print("classement final")
+        print()
         for i in liste:
             print(i)
+
+    @staticmethod
+    def choice_edit_player():
+        print()
+        choice = input("Appuyer sur  entrée pour revenir au menu ou saisissez o pour modifier classement: ")
+        return choice
+
+    @staticmethod
+    def display_player(player):
+        print()
+        for i in player:
+            print(i)
+
+    @staticmethod
+    def edit_player_id():
+        print()
+        choice = input("entrez id du joueur à modifier: ")
+        return choice
+
+    @staticmethod
+    def change_value():
+        rank = input("entrez son nouveau classement:")
+        return rank
+
+    @staticmethod
+    def display_player_choice(player):
+        return print(player)
+
+    @staticmethod
+    def left_edit():
+        print()
+        leave = input("Appuyer sur  entrée pour revenir au menu ou saisissez o pour modifier classement: ")
+        return leave
+
+    @staticmethod
+    def same_rank():
+        print()
+        return print('Vous avez deux joueurs avec le même classement, modifier les classements identiques')
