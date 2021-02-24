@@ -50,7 +50,6 @@ class MatchFunction:
 
     @staticmethod
     def check_match2(id, list_object):
-        print("check")
         cc = 0
         id = id
         list_match = db.get_all_match_by_tournament(id)
@@ -104,7 +103,6 @@ class MatchFunction:
                 num = 2
                 liste_player = []
                 while error:
-                    print("error21")
                     for pl in list_object:
                         pl1 = pl[0][0]
                         liste_player.append(pl1)

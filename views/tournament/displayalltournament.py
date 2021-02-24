@@ -9,13 +9,7 @@ class DisplayAllTournament:
         print()
 
         for i in self.all:
-
-            for k, v in i.items():
-                if k != "players":
-                    if k != "round":
-                        if v != "":
-                            print(f"{k}: {v} ", end="")
-            print()
+            print(i)
 
     @staticmethod
     def quit():

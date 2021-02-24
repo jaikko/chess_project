@@ -16,7 +16,7 @@ class Player:
 
     def __str__(self):
         return f" id: {self.id} nom: {self.lastname} prenom: {self.firstname} date de naissance: {self.date_of_birth}"\
-               f" sexe: {self.sexe}  rank {self.rank}"
+               f" sexe: {self.sexe}  rank: {self.rank}"
 
     def str(self):
         return f"{self.lastname} {self.firstname} ({self.id})"
@@ -92,7 +92,6 @@ class PlayerFunction:
 
     @staticmethod
     def ranking_by_rank(dic):
-        print(dic)
         old_id = ""
         old_score = ""
         list_same = []
@@ -149,7 +148,6 @@ class PlayerFunction:
             count += 1
 
         dictio = {}
-        print(alls)
         for i in alls:
             for k, v in dic.items():
                 if k == i:

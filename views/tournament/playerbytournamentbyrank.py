@@ -16,13 +16,7 @@ class PlayerByTournamentByRank:
         print()
 
         for i in self.tr:
-
-            for k, v in i.items():
-                if k != "players":
-                    if k != "round":
-                        if v != "":
-                            print(f"{k}: {v} ", end="")
-            print()
+            print(i)
 
     @staticmethod
     def get_user_choice():

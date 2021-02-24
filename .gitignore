@@ -1,5 +1,4 @@
 /venv
-setup.cfg
 .gitignore
 /data/tournament.json
 /data/player.json

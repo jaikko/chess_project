@@ -220,7 +220,6 @@ def update_tr_round(id, r):
     old_liste = get_all_match_by_tournament(id)
     db = TinyDB("data/tournament.json")
     tr = Query()
-    print(r)
     r_json = jsons.dump(r)
 
     if len(old_liste) < 4:
@@ -229,7 +228,7 @@ def update_tr_round(id, r):
     else:
 
         rv = get_round(id)
-        print(len(old_liste))
+
         if 4 <= len(old_liste) < 8:
             liste_json = [rv[0], r_json]
             db.update({'round': liste_json}, tr.id == int(id))
@@ -244,20 +243,20 @@ def update_tr_round(id, r):
 
 # vérifier si rank identique
 
-def same_rank(id):
-    db = TinyDB('data/tournament.json')
-    rs = db.search(where('id') == int(id))
-    liste = []
+def same_rank():
+    db = TinyDB('data/player.json')
     same = False
+    players = []
+    ranks = []
 
-    for k, v in rs[0].items():
-        if k == "players":
-            for i in v:
+    for row in db:
+        players.append(row)
+    for r in db:
+        ranks.append(r['rank'])
 
-                liste.append(i)
-    for i in range(8):
-        for j in liste:
-            if liste[i]['rank'] == j['rank']:
-                same = True
+    for i in players:
+        ranks.remove(i['rank'])
+        if i['rank'] in ranks:
+            same = True
 
     return same

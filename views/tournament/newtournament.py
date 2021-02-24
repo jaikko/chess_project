@@ -63,7 +63,7 @@ class NewTournamentView:
     @staticmethod
     def get_desc():
         print()
-        desc = input("description: ")
+        desc = input("description(appuyez sur entrée si vide): ")
         return desc
 
     @staticmethod
@@ -71,6 +71,11 @@ class NewTournamentView:
         print()
         valide = input("Tour terminé? Appuyer sur entrée pour valider ")
         return valide
+
+    @staticmethod
+    def same_rank():
+        print()
+        return print('Vous avez deux joueurs avec le même classement, modifier les classements identiques')
 
     @staticmethod
     def quit():

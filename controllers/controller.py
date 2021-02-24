@@ -53,6 +53,7 @@ class PlayerMenuController:
         self.view = playermenu.PlayerMenuView(self.menu)
 
     def __call__(self):
+        self.menu.clear()
         self.menu.add("1", "Ajouter des joueurs", AddPlayerController())
         self.menu.add("2", "Modifier un joueur", EditPlayerController())
         self.menu.add("3", "Liste de tous les acteurs", PlayerController())
@@ -237,64 +238,69 @@ class NewTournamentController:
         maxi = db.get_max_id()
         list_date = []
         self.view.display_player()
-        while self.count <= 7:
+        if db.same_rank():
+            self.view.same_rank()
+            PlayerMenuController().__call__()
+        else:
+            while self.count <= 7:
 
-            choice = self.view.get_id_choice()
-
-            while not choice.isdigit():
                 choice = self.view.get_id_choice()
 
-            while int(choice) <= 0 or int(choice) > int(maxi):
-                self.view.error_id_availible()
-                choice = self.view.get_id_choice()
+                while not choice.isdigit():
+                    choice = self.view.get_id_choice()
 
-            while choice in self.idplayer:
-                self.view.error_id()
-                choice = self.view.get_id_choice()
-                while int(choice) > int(maxi):
+                while int(choice) <= 0 or int(choice) > int(maxi):
                     self.view.error_id_availible()
                     choice = self.view.get_id_choice()
 
-            self.idplayer.append(choice)
+                while choice in self.idplayer:
+                    self.view.error_id()
+                    choice = self.view.get_id_choice()
+                    while int(choice) > int(maxi):
+                        self.view.error_id_availible()
+                        choice = self.view.get_id_choice()
 
-            self.count += 1
+                self.idplayer.append(choice)
 
-        name = self.view.get_name()
-        while not name:
+                self.count += 1
+
             name = self.view.get_name()
-        place = self.view.get_place()
-        while not place:
+            while not name:
+                name = self.view.get_name()
             place = self.view.get_place()
-        date = self.view.get_date()
-        while not date:
+            while not place:
+                place = self.view.get_place()
             date = self.view.get_date()
-        put = self.view.check_date()
-        while put == "o":
-            list_date.append(date)
-            date = self.view.get_date()
-            list_date.append(date)
             while not date:
                 date = self.view.get_date()
             put = self.view.check_date()
-        self.view.show_time()
-        time = self.view.get_time()
-        while time not in ["bullet", "blitz", "coup rapide"]:
+            while put == "o":
+                list_date.append(date)
+                date = self.view.get_date()
+                list_date.append(date)
+                while not date:
+                    date = self.view.get_date()
+                put = self.view.check_date()
+            self.view.show_time()
             time = self.view.get_time()
-        desc = self.view.get_desc()
+            while time not in ["bullet", "blitz", "coup rapide"]:
+                time = self.view.get_time()
+            desc = self.view.get_desc()
 
-        self.get_participant()
+            self.get_participant()
 
-        idtournament = db.get_id_tournament()
-        if len(list_date) > 1:
-            tr_object = tr.Tournament(idtournament, name, place, desc, time, 4, list_date, [], self.list_player_json)
-        else:
-            tr_object = tr.Tournament(idtournament, name, place, desc, time, 4, date, [], self.list_player_json)
-        tr_serialize = db.tournament_db(tr_object)
-        db.add_tournament_db(tr_serialize)
+            idtournament = db.get_id_tournament()
+            if len(list_date) > 1:
+                tr_object = tr.Tournament(idtournament, name, place, desc, time, 4, list_date, [],
+                                          self.list_player_json)
+            else:
+                tr_object = tr.Tournament(idtournament, name, place, desc, time, 4, date, [], self.list_player_json)
+            tr_serialize = db.tournament_db(tr_object)
+            db.add_tournament_db(tr_serialize)
 
-        put = self.view.quit()
-        if put == "":
-            TournamentMenuController().__call__()
+            put = self.view.quit()
+            if put == "":
+                TournamentMenuController().__call__()
 
     # convertir en objet pour l'affichage
     def get_object_display(self):
@@ -318,7 +324,7 @@ class ManageTournamentController:
     def __init__(self):
         self.info = []
         liste = db.get_all_tournament()
-        self.info = tr.TrFunction.deserialize(liste)
+        self.info = tr.Tournament.deserialize(liste)
         self.view = matchbytournament.MatchByTournament(self.info)
         self.list_match = []
         self.ranking_bis = {}
@@ -365,19 +371,15 @@ class ManageTournamentController:
                     num += num_round + 1
                 else:
                     num = num_round + 1
-                print(self.ranking_bis)
+                # print(self.ranking_bis)
                 if len(self.ranking_bis) < 8:
                     self.ranking_bis = player.PlayerFunction.get_score_by_player(put)
                 liste_order = player.PlayerFunction.ranking_by_score(self.ranking_bis)
-                print(liste_order)
+                # print(liste_order)
                 val = player.PlayerFunction.check_same_score(liste_order)
                 if val:
-                    if db.same_rank(put):
-                        self.view.same_rank()
-                        EditPlayerController().__call__()
-                    else:
-                        liste_order = player.PlayerFunction.ranking_by_rank(liste_order)
-                    print(liste_order)
+                    liste_order = player.PlayerFunction.ranking_by_rank(liste_order)
+                    # print(liste_order)
 
                     new_liste = players.return_list_object_from_dict(liste_order)
                     for j in range(0, 7, 2):
@@ -394,7 +396,7 @@ class ManageTournamentController:
             # afficher match
             for row in self.list_match:
                 self.view.display_new_match(row)
-                winner = input("gagnant(numéro du joueur) si match nul appuyez sur entrée: ")
+                winner = self.view.get_winner()
                 while winner not in ['1', '2', ""]:
                     winner = input("gagnant(numéro du joueur) si match nul appuyez sur entrée: ")
                 if winner == "1":
@@ -405,7 +407,6 @@ class ManageTournamentController:
                     row[0][1] += 0.5
                     row[1][1] += 0.5
 
-            end_hour = ""
             valide = self.view.end_round()
             while valide != "":
                 valide = self.view.end_round()
@@ -415,19 +416,63 @@ class ManageTournamentController:
             db.update_tr_round(put, rr)
 
             if num_round <= 3:
-                enter = self.view.left()
-                while enter not in ["", "o"]:
+                if num_round == 3:
+                    # générer classement
+                    self.ranking_bis = player.PlayerFunction.get_score_by_player(put)
+                    self.final_rank = player.PlayerFunction.ranking_by_score(self.ranking_bis)
+                    val = player.PlayerFunction.check_same_score(self.final_rank)
+                    if val:
+                        self.final_rank = player.PlayerFunction.ranking_by_rank(self.final_rank)
+                    pla = players.return_list_object_from_dict(self.final_rank)
+                    self.view.display_rank_final(pla)
+
+                    # modifier classement joueur
+                    edit = self.view.choice_edit_player()
+                    while edit not in ["", "o"]:
+                        edit = self.view.choice_edit_player()
+
+                    if edit == "":
+                        TournamentMenuController().__call__()
+                    while edit == "o":
+                        all_pl = db.get_all_player_by_tournament(put)
+                        all_pl_obj = []
+                        for i in all_pl:
+                            player_obj = players.deserialize(i)
+                            all_pl_obj.append(player_obj)
+
+                        self.view.display_player(all_pl_obj)
+                        all_id = db.get_all_player_id_by_tournament(put)
+                        enter_id = self.view.edit_player_id()
+                        while not enter_id.isdigit() or int(enter_id) not in all_id:
+                            enter_id = self.view.edit_player_id()
+
+                        rank = self.view.change_value()
+                        while not rank.isdigit():
+                            rank = self.view.change_value()
+                        db.update_player_rank(enter_id, rank)
+                        left = self.view.left_edit()
+                        while left not in ["", "o"]:
+                            left = self.view.left_edit()
+
+                        # quitter tournoi à la fin
+                        if left == "":
+                            edit = ""
+                            TournamentMenuController().__call__()
+
+                else:
                     enter = self.view.left()
-                if enter == "":
-                    TournamentMenuController().__call__()
-                elif enter == "o":
-                    for i in self.list_match:
-                        self.ranking[i[0][0].id] = i[0][1]
-                        self.ranking[i[1][0].id] = i[1][1]
+                    while enter not in ["", "o"]:
+                        enter = self.view.left()
+                    if enter == "":
+                        TournamentMenuController().__call__()
+                    elif enter == "o":
+                        for i in self.list_match:
+                            self.ranking[i[0][0].id] = i[0][1]
+                            self.ranking[i[1][0].id] = i[1][1]
 
             if num_round == 0:
                 self.ranking_bis = self.ranking.copy()
-                print(self.ranking_bis)
+                # print(self.ranking_bis)
                 count += 1
             else:
                 count += 1
@@ -439,49 +484,6 @@ class ManageTournamentController:
 
                             self.ranking_bis[k] = value
 
-            if num_round == 3:
-                # générer classement
-                self.ranking_bis = player.PlayerFunction.get_score_by_player(put)
-                self.final_rank = player.PlayerFunction.ranking_by_score(self.ranking_bis)
-                val = player.PlayerFunction.check_same_score(self.final_rank)
-                if val:
-                    self.final_rank = player.PlayerFunction.ranking_by_rank(self.final_rank)
-                pla = players.return_list_object_from_dict(self.final_rank)
-                self.view.display_rank_final(pla)
-
-                # modifier classement joueur
-                edit = self.view.choice_edit_player()
-                while edit not in ["", "o"]:
-                    edit = self.view.choice_edit_player()
-
-                if edit == "":
-                    TournamentMenuController().__call__()
-                while edit == "o":
-                    all_pl = db.get_all_player_by_tournament(put)
-                    all_pl_obj = []
-                    for i in all_pl:
-                        player_obj = players.deserialize(i)
-                        all_pl_obj.append(player_obj)
-
-                    self.view.display_player(all_pl_obj)
-                    all_id = db.get_all_player_id_by_tournament(put)
-                    enter_id = self.view.edit_player_id()
-                    while not enter_id.isdigit() or int(enter_id) not in all_id:
-                        enter_id = self.view.edit_player_id()
-
-                    rank = self.view.change_value()
-                    while not rank.isdigit():
-                        rank = self.view.change_value()
-                    db.update_player_rank(enter_id, rank)
-                    left = self.view.left_edit()
-                    while left not in ["", "o"]:
-                        left = self.view.left_edit()
-
-                    # quitter tournoi à la fin
-                    if left == "":
-                        edit = ""
-                        TournamentMenuController().__call__()
-
         if num_round > 3:
             # générer classement
             self.ranking_bis = player.PlayerFunction.get_score_by_player(put)
@@ -492,38 +494,13 @@ class ManageTournamentController:
             pla = players.return_list_object_from_dict(self.final_rank)
             self.view.display_rank_final(pla)
 
-            # modifier classement joueur
-            edit = self.view.choice_edit_player()
-            while edit not in ["", "o"]:
-                edit = self.view.choice_edit_player()
+            left = self.view.quit()
+            while left not in ["", "o"]:
+                left = self.view.quit()
 
-            if edit == "":
+            # quitter tournoi à la fin
+            if left == "":
                 TournamentMenuController().__call__()
-            while edit == "o":
-                all_pl = db.get_all_player_by_tournament(put)
-                all_pl_obj = []
-                for i in all_pl:
-                    player_obj = players.deserialize(i)
-                    all_pl_obj.append(player_obj)
-
-                self.view.display_player(all_pl_obj)
-                all_id = db.get_all_player_id_by_tournament(put)
-                enter_id = self.view.edit_player_id()
-                while not enter_id.isdigit() or int(enter_id) not in all_id:
-                    enter_id = self.view.edit_player_id()
-
-                rank = self.view.change_value()
-                while not rank.isdigit():
-                    rank = self.view.change_value()
-                db.update_player_rank(enter_id, rank)
-                left = self.view.left_edit()
-                while left not in ["", "o"]:
-                    left = self.view.left_edit()
-
-                # quitter tournoi à la fin
-                if left == "":
-                    edit = ""
-                    TournamentMenuController().__call__()
 
 
 # Lister tous les matchs d'un tournoi
@@ -532,7 +509,7 @@ class MatchByTournamentController:
     def __init__(self):
         self.info = []
         liste = db.get_all_tournament()
-        self.info = tr.TrFunction.deserialize(liste)
+        self.info = tr.Tournament.deserialize(liste)
         self.list_obj = []
         self.view = matchbytournament.MatchByTournament(self.info)
 
@@ -550,7 +527,7 @@ class MatchByTournamentController:
             TournamentMenuController().__call__()
 
 
-# Menu pour choisir trie liste de joueurs d'un tournoi
+# Menu pour choisir tri liste de joueurs d'un tournoi
 class PlayerByTournamentController:
 
     def __init__(self):
@@ -581,7 +558,7 @@ class PlayerByTournamentByRankController:
 
         self.info = []
         liste = db.get_all_tournament()
-        self.info = tr.TrFunction.deserialize(liste)
+        self.info = tr.Tournament.deserialize(liste)
         self.list_obj = []
         self.view = playerbytournamentbyrank.PlayerByTournamentByRank(self.info, self.list_obj)
 
@@ -609,7 +586,7 @@ class PlayerByTournamentByNameController:
     def __init__(self):
         self.info = []
         liste = db.get_all_tournament()
-        self.info = tr.TrFunction.deserialize(liste)
+        self.info = tr.Tournament.deserialize(liste)
         self.list_obj = []
         self.view = playerbytournamentbyname.PlayerByTournamentByName(self.info, self.list_obj)
 
@@ -638,7 +615,7 @@ class DisplayTournamentController:
     def __init__(self):
         self.info = []
         liste = db.get_all_tournament()
-        self.info = tr.TrFunction.deserialize(liste)
+        self.info = tr.Tournament.deserialize(liste)
         self.view = displayalltournament.DisplayAllTournament(self.info)
 
     def __call__(self):
@@ -655,7 +632,7 @@ class RoundByTournamentController:
     def __init__(self):
         self.info = []
         liste = db.get_all_tournament()
-        self.info = tr.TrFunction.deserialize(liste)
+        self.info = tr.Tournament.deserialize(liste)
         self.list_obj = []
         self.view = roundbytournament.RoundByTournamentView(self.info)
 

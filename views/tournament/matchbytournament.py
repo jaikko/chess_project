@@ -30,13 +30,7 @@ class MatchByTournament:
         print()
 
         for i in self.tr:
-
-            for k, v in i.items():
-                if k != "players":
-                    if k != "round":
-                        if v != "":
-                            print(f"{k}: {v} ", end="")
-            print()
+            print(i)
 
     @staticmethod
     def get_user_choice():
@@ -103,6 +97,7 @@ class MatchByTournament:
         return leave
 
     @staticmethod
-    def same_rank():
+    def get_winner():
         print()
-        return print('Vous avez deux joueurs avec le même classement, modifier les classements identiques')
+        win = input("gagnant(numéro du joueur) si match nul appuyez sur entrée: ")
+        return win
