@@ -1,6 +1,6 @@
 /venv
 setup.cfg
 .gitignore
-data/tournament.json
-data/player.json
+/data/tournament.json
+/data/player.json
 .idea
