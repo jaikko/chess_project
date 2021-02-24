@@ -1,5 +1,0 @@
-/venv
-.gitignore
-/data/tournament.json
-/data/player.json
-.idea
