@@ -343,6 +343,9 @@ class ManageTournamentController:
 
     def __call__(self):
         num = 0
+        if len(self.info) == 0:
+            self.view.error_tournament()
+            TournamentMenuController().__call__()
         self.view.display_tournament()
         put = self.view.get_user_choice()
         all_tr = db.get_all_id_tr()
