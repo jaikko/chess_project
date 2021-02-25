@@ -41,21 +41,24 @@ class RoundFunction:
                     obj = liste[0]
                     rnd = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[0], lm[1], lm[2], lm[3]])
                     stock.append(rnd)
-           
+                    
+
             elif 4 < count < 9:
                 if count == 8:
                     obj = liste[1]
                     rnd0 = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[4], lm[5], lm[6], lm[7]])
-                   
+                    stock.append(rnd0)
+
             elif 8 < count < 13:
                 if count == 12:
                     obj = liste[2]
-                    rnd1 = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[8], lm[9], lm[10], lm[11]])          
+                    rnd1 = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[8], lm[9], lm[10], lm[11]])
+                    stock.append(rnd1)
 
             elif 12 < count < 17:
                 if count == 16:
                     obj = liste[3]
                     rnd2 = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[12], lm[13], lm[14], lm[15]])
-                   
+                    stock.append(rnd2)
 
         return stock
