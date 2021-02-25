@@ -425,7 +425,7 @@ class ManageTournamentController:
             if num_round <= 3:
                 if num_round == 3:
                     # générer classement
-                    self.ranking_bis = player.PlayerFunction.get_score_by_player(put)
+                    self.score_by_player = player.PlayerFunction.get_score_by_player(put)
                     self.final_rank = player.PlayerFunction.ranking_by_score(self.ranking_bis)
                     val = player.PlayerFunction.check_same_score(self.final_rank)
                     if val:
