@@ -41,7 +41,6 @@ class RoundFunction:
                     obj = liste[0]
                     rnd = Round(obj.name, obj.date, obj.hour_end, obj.hour_start, [lm[0], lm[1], lm[2], lm[3]])
                     stock.append(rnd)
-                    
 
             elif 4 < count < 9:
                 if count == 8:
