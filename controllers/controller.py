@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import jsons as jsons
 import sys
 
@@ -48,7 +50,7 @@ class HomeMenuController:
         user_choice.controller()
 
 
-# Quiiter application
+# Quitter application
 class LeftController:
     def __init__(self):
         pass
@@ -246,9 +248,9 @@ class NewTournamentController:
     def __call__(self):
         self.players = db.get_all_player()
         self.get_object_display()
-        maxi = db.get_max_id()
         list_date = []
         self.view.display_player()
+        all_id = db.get_all_id_pl()
         if db.same_rank():
             self.view.same_rank()
             PlayerMenuController().__call__()
@@ -257,18 +259,12 @@ class NewTournamentController:
 
                 choice = self.view.get_id_choice()
 
-                while not choice.isdigit():
-                    choice = self.view.get_id_choice()
-
-                while int(choice) <= 0 or int(choice) > int(maxi):
-                    self.view.error_id_availible()
-                    choice = self.view.get_id_choice()
-
-                while choice in self.idplayer:
-                    self.view.error_id()
-                    choice = self.view.get_id_choice()
-                    while int(choice) > int(maxi):
+                while not choice.isdigit() or int(choice) not in all_id or choice in self.idplayer:
+                    if not choice.isdigit() or int(choice) not in all_id:
                         self.view.error_id_availible()
+                        choice = self.view.get_id_choice()
+                    if choice in self.idplayer:
+                        self.view.error_id()
                         choice = self.view.get_id_choice()
 
                 self.idplayer.append(choice)
@@ -343,6 +339,7 @@ class ManageTournamentController:
         self.ranking = {}
         self.round_str = []
         self.final_rank = []
+        self.score_by_player = {}
 
     def __call__(self):
         num = 0
@@ -382,15 +379,13 @@ class ManageTournamentController:
                     num += num_round + 1
                 else:
                     num = num_round + 1
-                # print(self.ranking_bis)
                 if len(self.ranking_bis) < 8:
                     self.ranking_bis = player.PlayerFunction.get_score_by_player(put)
+                    self.score_by_player = player.PlayerFunction.get_score_by_player(put)
                 liste_order = player.PlayerFunction.ranking_by_score(self.ranking_bis)
-                # print(liste_order)
                 val = player.PlayerFunction.check_same_score(liste_order)
                 if val:
                     liste_order = player.PlayerFunction.ranking_by_rank(liste_order)
-                    # print(liste_order)
 
                     new_liste = players.return_list_object_from_dict(liste_order)
                     for j in range(0, 7, 2):
@@ -405,6 +400,7 @@ class ManageTournamentController:
                         self.list_match = all_match.copy()
 
             # afficher match
+            self.view.display_num_round(num)
             for row in self.list_match:
                 self.view.display_new_match(row)
                 winner = self.view.get_winner()
@@ -435,7 +431,7 @@ class ManageTournamentController:
                     if val:
                         self.final_rank = player.PlayerFunction.ranking_by_rank(self.final_rank)
                     pla = players.return_list_object_from_dict(self.final_rank)
-                    self.view.display_rank_final(pla)
+                    self.view.display_rank_final(pla, self.score_by_player)
 
                     # modifier classement joueur
                     edit = self.view.choice_edit_player()
@@ -483,7 +479,7 @@ class ManageTournamentController:
 
             if num_round == 0:
                 self.ranking_bis = self.ranking.copy()
-                # print(self.ranking_bis)
+
                 count += 1
             else:
                 count += 1
@@ -496,6 +492,8 @@ class ManageTournamentController:
                             self.ranking_bis[k] = value
 
         if num_round > 3:
+            # récupérer les scores
+            self.score_by_player = player.PlayerFunction.get_score_by_player(put)
             # générer classement
             self.ranking_bis = player.PlayerFunction.get_score_by_player(put)
             self.final_rank = player.PlayerFunction.ranking_by_score(self.ranking_bis)
@@ -503,7 +501,7 @@ class ManageTournamentController:
             if val:
                 self.final_rank = player.PlayerFunction.ranking_by_rank(self.final_rank)
             pla = players.return_list_object_from_dict(self.final_rank)
-            self.view.display_rank_final(pla)
+            self.view.display_rank_final(pla, self.score_by_player)
 
             left = self.view.quit()
             while left not in ["", "o"]:
