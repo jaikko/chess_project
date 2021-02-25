@@ -1,4 +1,5 @@
 import jsons as jsons
+import sys
 
 from datetime import datetime
 from models import menu, player, db, tournament, match, round
@@ -33,6 +34,7 @@ class HomeMenuController:
         self.menu.clear()
         self.menu.add("1", "Gestion des joueurs", PlayerMenuController())
         self.menu.add("2", "Gestion des tournois", TournamentMenuController())
+        self.menu.add("3", "Quitter", LeftController())
         user_choice = self.view.get_user_choice()
         check = self.menu.__contains__(user_choice)
         check = eval(check)
@@ -44,6 +46,15 @@ class HomeMenuController:
 
         user_choice = self.view.return_controller(user_choice)
         user_choice.controller()
+
+
+# Quiiter application
+class LeftController:
+    def __init__(self):
+        pass
+
+    def __call__(self):
+        sys.exit()
 
 
 # Menu Joueur
