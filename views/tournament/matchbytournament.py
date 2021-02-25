@@ -9,7 +9,6 @@ class MatchByTournament:
         print()
         print("Liste des matchs")
         print()
-        print(matchs)
         for i in matchs:
             if i.s1 == 1:
                 print(f"{i.p1.str()} a battu {i.p2.str()}  ")
@@ -57,11 +56,13 @@ class MatchByTournament:
         return leave
 
     @staticmethod
-    def display_rank_final(liste):
+    def display_rank_final(liste, score):
         print("classement final")
         print()
         for i in liste:
-            print(i)
+            for k, v in score.items():
+                if k == i.id:
+                    print(f" {i} avec {v} points")
 
     @staticmethod
     def choice_edit_player():
@@ -101,3 +102,8 @@ class MatchByTournament:
         print()
         win = input("gagnant(numéro du joueur) si match nul appuyez sur entrée: ")
         return win
+
+    @staticmethod
+    def display_num_round(num):
+        print()
+        print(f" round {num}")
