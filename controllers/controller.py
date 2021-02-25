@@ -584,7 +584,7 @@ class PlayerByTournamentByRankController:
         for i in rs:
             pl = players.deserialize(i)
             self.list_obj.append(pl)
-        self.list_obj.sort(key=lambda p: p.rank, reverse=True)
+        self.list_obj.sort(key=lambda p: p.rank, reverse=False)
         self.view.display_player()
         quit = self.view.quit()
         while quit != "":
