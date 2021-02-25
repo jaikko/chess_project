@@ -130,7 +130,7 @@ class PlayerOrderByRank:
     def __init__(self):
         self.players = db.get_all_player()
         self.players = players.return_list_object_from_list(self.players)
-        self.players.sort(key=lambda p: p.rank, reverse=True)
+        self.players.sort(key=lambda p: p.rank, reverse=False)
 
         self.view = orderbyrank.PlayerOrderByNameView(self.players)
 
