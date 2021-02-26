@@ -58,6 +58,7 @@ class MatchByTournament:
 
     @staticmethod
     def display_rank_final(liste, score):
+        print()
         print("classement final")
         print()
         for i in liste:
