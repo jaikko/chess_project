@@ -80,7 +80,6 @@ class MatchFunction:
 
         if not enter:
             if 1 in list_error:
-
                 new_match.clear()
                 m1 = Match(list_object[0][0][0], 0, list_object[1][0][0], 0)
                 new_match.append(m1.match)
@@ -103,6 +102,7 @@ class MatchFunction:
                 num = 2
                 liste_player = []
                 while error:
+
                     for pl in list_object:
                         pl1 = pl[0][0]
                         liste_player.append(pl1)
@@ -111,7 +111,6 @@ class MatchFunction:
                     new_match.clear()
 
                     # vérification match1
-
                     m1 = Match(liste_player[0], 0, liste_player[num], 0)
                     m_status = MatchFunction.check_match(id, m1.match)
                     while m_status:
@@ -124,13 +123,16 @@ class MatchFunction:
 
                 # vérifier les autres matchs
 
-                r_list = [0, 1, 2, num]
+                r_list = []
                 test_match = []
                 good_match = 1
 
                 while good_match >= 1:
                     r_list.clear()
-                    r_list = [0, 1, 2, num]
+                    if num == 2:
+                        r_list = [0, 1, 2]
+                    else:
+                        r_list = [0, 1, 2, num]
 
                     for pl in list_object:
                         pl1 = pl[0][0]
@@ -155,24 +157,52 @@ class MatchFunction:
                         m_status = MatchFunction.check_match(id, m2.match)
                     r_list.append(r1)
                     test_match.append(m2.match)
-                    # print(str(num))
-                    # print(f" r1 {r1}")
 
                     # vérification match 3
-
-                    r2 = random.randint(3, 7)
-                    while r2 in r_list:
+                    if num == 2:
                         r2 = random.randint(3, 7)
-                    m3 = Match(liste_player[2], 0, liste_player[r2], 0)
-                    m_status = MatchFunction.check_match(id, m3.match)
-                    while m_status:
+                        r = 0
+                        while r2 in r_list:
+                            r2 = random.randint(3, 7)
+                        if r1 == 3:
+                            m3 = Match(liste_player[4], 0, liste_player[r2], 0)
+                        else:
+                            m3 = Match(liste_player[3], 0, liste_player[r2], 0)
+                        m_status = MatchFunction.check_match(id, m3.match)
+                        while m_status:
+
+                            r2 = random.randint(3, 7)
+                            while r2 in r_list:
+                                r2 = random.randint(3, 7)
+                            r = random.randint(3, 7)
+                            while r in r_list:
+                                r = random.randint(3, 7)
+
+                            m3 = Match(liste_player[r], 0, liste_player[r2], 0)
+                            m_status = MatchFunction.check_match(id, m3.match)
+                        r_list.append(r2)
+                        if r != 0:
+                            r_list.append(r)
+
+                        else:
+                            r_list.append(3)
+                        test_match.append(m3.match)
+
+                    else:
                         r2 = random.randint(3, 7)
                         while r2 in r_list:
                             r2 = random.randint(3, 7)
                         m3 = Match(liste_player[2], 0, liste_player[r2], 0)
                         m_status = MatchFunction.check_match(id, m3.match)
-                    r_list.append(r2)
-                    test_match.append(m3.match)
+                        while m_status:
+                            r2 = random.randint(3, 7)
+                            while r2 in r_list:
+                                r2 = random.randint(3, 7)
+
+                            m3 = Match(liste_player[2], 0, liste_player[r2], 0)
+                            m_status = MatchFunction.check_match(id, m3.match)
+                        r_list.append(r2)
+                        test_match.append(m3.match)
 
                     # vérification match 4
 
@@ -183,14 +213,14 @@ class MatchFunction:
                             if not stop:
                                 r3 += i
                                 stop = True
-                    # print(f" r3 {r3}")
+
                     r_list.append(r3)
 
                     r4 = 0
                     for i in range(3, 8):
                         if i not in r_list:
                             r4 += i
-                    # print(f" r4 {r4}")
+
                     m4 = Match(liste_player[r3], 0, liste_player[r4], 0)
                     test_match.append(m4.match)
 
