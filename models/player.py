@@ -72,7 +72,7 @@ class PlayerFunction:
 
     @staticmethod
     def split_player_by_rank(liste):
-        liste.sort(key=lambda p: p.rank, reverse=True)
+        liste.sort(key=lambda p: p.rank, reverse=False)
         liste_a = liste[0:4]
         liste_b = liste[4:8]
 
@@ -115,7 +115,7 @@ class PlayerFunction:
                         json = db.get_player_by_id(i)
                         obj = Player.deserialize(json)
                         dd[obj.rank] = obj.id
-                        d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
+                        d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=False))
 
                     for ke, va in d2.items():
                         alls.append(va)
@@ -131,7 +131,7 @@ class PlayerFunction:
                         json = db.get_player_by_id(i)
                         obj = Player.deserialize(json)
                         dd[obj.rank] = obj.id
-                        d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=True))
+                        d2 = OrderedDict(sorted(dd.items(), key=lambda t: t[0], reverse=False))
                     for ke, va in d2.items():
                         alls.append(va)
                     d2.clear()
