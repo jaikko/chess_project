@@ -4,7 +4,6 @@ from models import player, db
 
 
 class Match:
-    match = ()
 
     def __init__(self, p1, s1, p2, s2):
         self.p1 = p1
