@@ -9,7 +9,7 @@ class MatchByTournament:
         print()
         print("Liste des matchs")
         print()
-      
+
         for i in matchs:
             if i.s1 == 1:
                 print(f"{i.p1.str()} a battu {i.p2.str()}  ")
