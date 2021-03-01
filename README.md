@@ -20,6 +20,7 @@ Pour générer un nouveau fichier flake8-html:
 3. Dans la racine du dossier du projet, éxecuter la commande "source venv/Scripts/activate"
 4. Dans la racine du dossier du projet, éxecuter flake8 --format=html --htmldir=flake8-report
 
+Pour utiliser le progamme, il suffit de suivre les indications demandées.
 
 
 
