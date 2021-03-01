@@ -130,7 +130,7 @@ def get_all_player():
     return players
 
 
-# récupérer tous les joueurs
+# récupérer tous les tournois
 def get_all_tournament():
     liste = []
     db = TinyDB('data/tournament.json')
