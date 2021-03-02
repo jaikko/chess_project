@@ -16,11 +16,11 @@ Pour exécuter le programme:
 Pour générer un nouveau fichier flake8-html:
 
 1. Ouvrir la console de Git
-2. Si aucun environnement virtuel est créé, se référer aux étapes 4,5 au-dessus
+2. Si aucun environnement virtuel est créé, se référer aux étapes 4et 5 au-dessus
 3. Dans la racine du dossier du projet, éxecuter la commande "source venv/Scripts/activate"
 4. Dans la racine du dossier du projet, éxecuter flake8 --format=html --htmldir=flake8-report
 
-Pour utiliser le progamme, il suffit de suivre les indications demandées.
+Pour utiliser le progamme, il suffit de suivre les indications indiquées.
 
 
 
